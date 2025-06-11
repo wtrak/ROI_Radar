@@ -306,4 +306,26 @@ if (roiTaperYear) {
   taperMessage.textContent = `📉 ROI Taper Detected: Consider selling by ${roiTaperYear} to lock in gains.`;
   document.getElementById("results").appendChild(taperMessage);
 }
+// === ROI Stall Point ===
+let stallPointYear = null;
+for (let i = 2; i < realRois.length; i++) {
+  const prev = realRois[i - 1];
+  const curr = realRois[i];
+  const prevPrev = realRois[i - 2];
+
+  // Check if 2 consecutive years show stall or drop
+  if (curr <= prev && prev <= prevPrev) {
+    stallPointYear = futureYears[i];
+    break;
+  }
+}
+
+if (stallPointYear) {
+  const stallMessage = document.createElement("p");
+  stallMessage.style.fontWeight = "bold";
+  stallMessage.style.color = "#8B0000";
+  stallMessage.textContent = `⛔ ROI Stall Detected: Real returns may flatten or reverse starting in ${stallPointYear}.`;
+  document.getElementById("results").appendChild(stallMessage);
+}
+
 }); // ← this closes the form submit event listener
