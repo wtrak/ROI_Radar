@@ -47,6 +47,61 @@ const cpiData = {
   2024: 319.1 // Estimate
 };
 
+// Wage & COL growth by U.S. state
+const wageData = {
+  us_avg: { wageGrowth: 0.032, colIncrease: 0.025 },
+  alabama: { wageGrowth: 0.029, colIncrease: 0.023 },
+  alaska: { wageGrowth: 0.028, colIncrease: 0.022 },
+  arizona: { wageGrowth: 0.035, colIncrease: 0.028 },
+  arkansas: { wageGrowth: 0.03, colIncrease: 0.024 },
+  california: { wageGrowth: 0.033, colIncrease: 0.03 },
+  colorado: { wageGrowth: 0.034, colIncrease: 0.027 },
+  connecticut: { wageGrowth: 0.031, colIncrease: 0.025 },
+  delaware: { wageGrowth: 0.03, colIncrease: 0.024 },
+  florida: { wageGrowth: 0.034, colIncrease: 0.028 },
+  georgia: { wageGrowth: 0.032, colIncrease: 0.026 },
+  hawaii: { wageGrowth: 0.029, colIncrease: 0.03 },
+  idaho: { wageGrowth: 0.035, colIncrease: 0.026 },
+  illinois: { wageGrowth: 0.031, colIncrease: 0.025 },
+  indiana: { wageGrowth: 0.03, colIncrease: 0.023 },
+  iowa: { wageGrowth: 0.029, colIncrease: 0.022 },
+  kansas: { wageGrowth: 0.03, colIncrease: 0.022 },
+  kentucky: { wageGrowth: 0.029, colIncrease: 0.022 },
+  louisiana: { wageGrowth: 0.028, colIncrease: 0.021 },
+  maine: { wageGrowth: 0.03, colIncrease: 0.023 },
+  maryland: { wageGrowth: 0.032, colIncrease: 0.026 },
+  massachusetts: { wageGrowth: 0.033, colIncrease: 0.027 },
+  michigan: { wageGrowth: 0.03, colIncrease: 0.024 },
+  minnesota: { wageGrowth: 0.031, colIncrease: 0.025 },
+  mississippi: { wageGrowth: 0.028, colIncrease: 0.021 },
+  missouri: { wageGrowth: 0.03, colIncrease: 0.024 },
+  montana: { wageGrowth: 0.032, colIncrease: 0.025 },
+  nebraska: { wageGrowth: 0.029, colIncrease: 0.022 },
+  nevada: { wageGrowth: 0.032, colIncrease: 0.027 },
+  new_hampshire: { wageGrowth: 0.031, colIncrease: 0.025 },
+  new_jersey: { wageGrowth: 0.032, colIncrease: 0.026 },
+  new_mexico: { wageGrowth: 0.028, colIncrease: 0.023 },
+  new_york: { wageGrowth: 0.03, colIncrease: 0.028 },
+  north_carolina: { wageGrowth: 0.033, colIncrease: 0.025 },
+  north_dakota: { wageGrowth: 0.028, colIncrease: 0.022 },
+  ohio: { wageGrowth: 0.03, colIncrease: 0.024 },
+  oklahoma: { wageGrowth: 0.029, colIncrease: 0.022 },
+  oregon: { wageGrowth: 0.031, colIncrease: 0.026 },
+  pennsylvania: { wageGrowth: 0.03, colIncrease: 0.025 },
+  rhode_island: { wageGrowth: 0.031, colIncrease: 0.025 },
+  south_carolina: { wageGrowth: 0.032, colIncrease: 0.025 },
+  south_dakota: { wageGrowth: 0.028, colIncrease: 0.021 },
+  tennessee: { wageGrowth: 0.031, colIncrease: 0.025 },
+  texas: { wageGrowth: 0.034, colIncrease: 0.027 },
+  utah: { wageGrowth: 0.035, colIncrease: 0.027 },
+  vermont: { wageGrowth: 0.03, colIncrease: 0.025 },
+  virginia: { wageGrowth: 0.032, colIncrease: 0.025 },
+  washington: { wageGrowth: 0.034, colIncrease: 0.028 },
+  west_virginia: { wageGrowth: 0.028, colIncrease: 0.022 },
+  wisconsin: { wageGrowth: 0.03, colIncrease: 0.024 },
+  wyoming: { wageGrowth: 0.027, colIncrease: 0.021 }
+};
+
 document.getElementById("roiForm").addEventListener("submit", function (e) {
   e.preventDefault();
 
@@ -57,26 +112,22 @@ document.getElementById("roiForm").addEventListener("submit", function (e) {
   const currentYear = parseInt(document.getElementById("currentYear").value);
   const ownershipCostPercent = parseFloat(document.getElementById("ownershipCostPercent").value) || 1.5;
   const sellingCostPercent = parseFloat(document.getElementById("sellingCostPercent").value) || 6;
+  const selectedLocation = document.getElementById("location").value;
 
   let cpiStart = cpiData[purchaseYear];
-let cpiEnd = cpiData[currentYear];
+  let cpiEnd = cpiData[currentYear];
 
-// Handle 2025 fallback estimation FIRST
-if (purchaseYear === 2025 && !cpiStart) {
-  const lastKnown = cpiData[2024];
-  cpiStart = lastKnown * 1.035;
-}
-if (currentYear === 2025 && !cpiEnd) {
-  const lastKnown = cpiData[2024];
-  cpiEnd = lastKnown * 1.035;
-}
+  if (purchaseYear === 2025 && !cpiStart) {
+    cpiStart = cpiData[2024] * 1.035;
+  }
+  if (currentYear === 2025 && !cpiEnd) {
+    cpiEnd = cpiData[2024] * 1.035;
+  }
 
-// Only now check for missing data
-if (!cpiStart || !cpiEnd) {
-  alert("CPI data not available for selected years.");
-  return;
-}
-
+  if (!cpiStart || !cpiEnd) {
+    alert("CPI data not available for selected years.");
+    return;
+  }
 
   const inflationMultiplier = cpiEnd / cpiStart;
   const inflationAdjustedPrice = purchasePrice * inflationMultiplier;
@@ -93,6 +144,9 @@ if (!cpiStart || !cpiEnd) {
   const netNominalProfit = currentValue - purchasePrice - totalOwnershipCost - sellingCost;
   const netRealProfit = currentValue - inflationAdjustedPrice - totalOwnershipCost - sellingCost;
 
+  const region = wageData[selectedLocation] || wageData["us_avg"];
+  const adjustedRealROI = annualizedRealROI - region.colIncrease + region.wageGrowth;
+
   let resultsHTML = `
     <h2>Results:</h2>
     <p>Nominal Gain: $${nominalGain.toFixed(2)}</p>
@@ -107,6 +161,11 @@ if (!cpiStart || !cpiEnd) {
     <h3>Net Profit:</h3>
     <p>Net Nominal Profit (after costs): $${netNominalProfit.toFixed(2)}</p>
     <p>Net Real Profit (inflation-adjusted): $${netRealProfit.toFixed(2)}</p>
+
+    <h3>Location-Adjusted ROI:</h3>
+    <p>Local Wage Growth: ${(region.wageGrowth * 100).toFixed(2)}%</p>
+    <p>Local Cost of Living Increase: ${(region.colIncrease * 100).toFixed(2)}%</p>
+    <p>ROI Adjusted for Local Wages & COL: ${(adjustedRealROI * 100).toFixed(2)}%</p>
   `;
 
   if (currentYear === 2025 || purchaseYear === 2025) {
