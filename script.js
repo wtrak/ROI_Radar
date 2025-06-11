@@ -1,4 +1,4 @@
-// U.S. CPI (All Urban Consumers, not seasonally adjusted)
+// U.S. CPI (All Urban Consumers)
 const cpiData = {
   1980: 82.4,
   1981: 90.9,
@@ -44,9 +44,8 @@ const cpiData = {
   2021: 271.0,
   2022: 292.6,
   2023: 303.1,
-  2024: 319.1 // Estimate as of mid-year
+  2024: 319.1 // Estimate
 };
-
 
 document.getElementById("roiForm").addEventListener("submit", function (e) {
   e.preventDefault();
@@ -56,32 +55,28 @@ document.getElementById("roiForm").addEventListener("submit", function (e) {
   const purchaseYear = parseInt(document.getElementById("purchaseYear").value);
   const currentValue = parseFloat(document.getElementById("currentValue").value);
   const currentYear = parseInt(document.getElementById("currentYear").value);
+  const ownershipCostPercent = parseFloat(document.getElementById("ownershipCostPercent").value) || 1.5;
+  const sellingCostPercent = parseFloat(document.getElementById("sellingCostPercent").value) || 6;
 
-let cpiStart = cpiData[purchaseYear];
+  let cpiStart = cpiData[purchaseYear];
 let cpiEnd = cpiData[currentYear];
 
-// Estimate for 2025 if needed
-if (currentYear === 2025) {
+// Handle 2025 fallback estimation FIRST
+if (purchaseYear === 2025 && !cpiStart) {
   const lastKnown = cpiData[2024];
-  const estimatedGrowthRate = 0.035; // ~3.5% inflation
-  cpiEnd = lastKnown * (1 + estimatedGrowthRate);
+  cpiStart = lastKnown * 1.035;
 }
-
-// Optional future-proofing:
-if (purchaseYear === 2025) {
+if (currentYear === 2025 && !cpiEnd) {
   const lastKnown = cpiData[2024];
-  const estimatedGrowthRate = 0.035;
-  cpiStart = lastKnown * (1 + estimatedGrowthRate);
-}
-if (currentYear === 2025 || purchaseYear === 2025) {
-  resultsHTML += `<p><em>Note: 2025 CPI is an estimated value based on 3.5% projected inflation over 2024.</em></p>`;
+  cpiEnd = lastKnown * 1.035;
 }
 
+// Only now check for missing data
+if (!cpiStart || !cpiEnd) {
+  alert("CPI data not available for selected years.");
+  return;
+}
 
-  if (!cpiStart || !cpiEnd) {
-      alert("CPI data only available from 1980 to 2024. Please enter valid years.");
-    return;
-  }
 
   const inflationMultiplier = cpiEnd / cpiStart;
   const inflationAdjustedPrice = purchasePrice * inflationMultiplier;
@@ -91,13 +86,32 @@ if (currentYear === 2025 || purchaseYear === 2025) {
   const yearsHeld = currentYear - purchaseYear;
   const annualizedRealROI = Math.pow(currentValue / inflationAdjustedPrice, 1 / yearsHeld) - 1;
 
+  const avgHomeValue = (purchasePrice + currentValue) / 2;
+  const totalOwnershipCost = avgHomeValue * (ownershipCostPercent / 100) * yearsHeld;
+  const sellingCost = currentValue * (sellingCostPercent / 100);
+
+  const netNominalProfit = currentValue - purchasePrice - totalOwnershipCost - sellingCost;
+  const netRealProfit = currentValue - inflationAdjustedPrice - totalOwnershipCost - sellingCost;
+
   let resultsHTML = `
     <h2>Results:</h2>
     <p>Nominal Gain: $${nominalGain.toFixed(2)}</p>
     <p>Inflation-Adjusted Purchase Price: $${inflationAdjustedPrice.toFixed(2)}</p>
     <p>Real Gain: $${realGain.toFixed(2)}</p>
     <p>Annualized Real ROI: ${(annualizedRealROI * 100).toFixed(2)}%</p>
+
+    <h3>Ownership & Selling Costs:</h3>
+    <p>Total Estimated Ownership Costs: $${totalOwnershipCost.toFixed(2)}</p>
+    <p>Selling Costs (e.g. Realtor fees): $${sellingCost.toFixed(2)}</p>
+
+    <h3>Net Profit:</h3>
+    <p>Net Nominal Profit (after costs): $${netNominalProfit.toFixed(2)}</p>
+    <p>Net Real Profit (inflation-adjusted): $${netRealProfit.toFixed(2)}</p>
   `;
+
+  if (currentYear === 2025 || purchaseYear === 2025) {
+    resultsHTML += `<p><em>Note: 2025 CPI is an estimated value based on 3.5% projected inflation.</em></p>`;
+  }
 
   if (address.trim() !== "") {
     const encodedAddress = encodeURIComponent(address);
