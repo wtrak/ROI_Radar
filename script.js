@@ -184,4 +184,43 @@ document.getElementById("roiForm").addEventListener("submit", function (e) {
   }
 
   document.getElementById("results").innerHTML = resultsHTML;
+  
+// === FUTURE ROI CHART ===
+  const projGrowth = parseFloat(document.getElementById("projHomeGrowth").value) / 100 || 0.04;
+  const projInflation = parseFloat(document.getElementById("projInflationRate").value) / 100 || 0.035;
+
+  const futureYears = [], nominalValues = [], adjustedValues = [], realRois = [];
+
+  for (let i = 1; i <= 10; i++) {
+    const year = currentYear + i;
+    const nominal = currentValue * Math.pow(1 + projGrowth, i);
+    const adjusted = nominal / Math.pow(1 + projInflation, i);
+    const realRoi = Math.pow(adjusted / purchasePrice, 1 / (yearsHeld + i)) - 1;
+
+    futureYears.push(year);
+    nominalValues.push(nominal.toFixed(0));
+    adjustedValues.push(adjusted.toFixed(0));
+    realRois.push((realRoi * 100).toFixed(2));
+  }
+
+  if (window.futureChart) window.futureChart.destroy();
+
+  const ctx = document.getElementById("futureChart").getContext("2d");
+  window.futureChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: futureYears,
+      datasets: [
+        { label: "Nominal Home Value", data: nominalValues, borderColor: "#4CAF50", borderWidth: 2, fill: false },
+        { label: "Inflation-Adjusted Value", data: adjustedValues, borderColor: "#2196F3", borderWidth: 2, fill: false },
+        { label: "Annualized Real ROI (%)", data: realRois, borderColor: "#FF9800", borderWidth: 2, fill: false, yAxisID: 'y1' }
+      ]
+    },
+    options: {
+      scales: {
+        y: { type: 'linear', position: 'left', title: { display: true, text: 'Value ($)' } },
+        y1: { type: 'linear', position: 'right', title: { display: true, text: 'Real ROI (%)' }, grid: { drawOnChartArea: false } }
+      }
+    }
+  });
 });
