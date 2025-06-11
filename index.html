@@ -3,116 +3,131 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>RealHouse ROI Calculator</title>
+  <title>ROI Radar | Real Estate Investment Tool</title>
   <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f9fafb;
+      color: #111827;
+    }
+    header {
+      background: #111827;
+      color: white;
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    header img {
+      height: 40px;
+    }
+    h1, h2 {
+      margin-top: 2rem;
+      text-align: center;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+      padding: 2rem;
+    }
+    form label {
+      display: block;
+      margin: 1rem 0 0.25rem;
+      font-weight: 600;
+    }
+    form input, form select, form button {
+      width: 100%;
+      padding: 0.5rem;
+      margin-bottom: 1rem;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+    form button {
+      background-color: #2563eb;
+      color: white;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+    }
+    #results, #zillowLink {
+      background: white;
+      padding: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+      margin-bottom: 2rem;
+    }
+    canvas {
+      background: white;
+      border-radius: 8px;
+      padding: 1rem;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+    }
+  </style>
 </head>
 
 <body>
-  <h1>RealHouse ROI Calculator</h1>
-  <form id="roiForm">
-    <label>
-      Property Address (optional):
+  <header>
+    <img src="/logo.png" alt="ROI Radar Logo" />
+    <h1>ROI Radar</h1>
+  </header>
+
+  <div class="container">
+    <h2>Calculate Your Real Estate ROI</h2>
+    <form id="roiForm">
+      <label for="address">Property Address (optional):</label>
       <input type="text" id="address" placeholder="123 Main St, City, State" />
-    </label>
-    <label>
-      Purchase Price:
+
+      <label for="purchasePrice">Purchase Price:</label>
       <input type="number" id="purchasePrice" required />
-    </label>
-    <label>
-      Purchase Year:
+
+      <label for="purchaseYear">Purchase Year:</label>
       <input type="number" id="purchaseYear" required />
-    </label>
-    <label>
-      Current Value:
+
+      <label for="currentValue">Current Value:</label>
       <input type="number" id="currentValue" required />
-    </label>
-    <label>
-      Current Year:
+
+      <label for="currentYear">Current Year:</label>
       <input type="number" id="currentYear" required />
-    </label>
-    <label>
-      Annual Ownership Cost (% of home value per year, default 1.5%):
+
+      <label for="ownershipCostPercent">Annual Ownership Cost (% of home value per year):</label>
       <input type="number" id="ownershipCostPercent" placeholder="1.5" step="0.1" />
-    </label>
-    <label>
-      Selling Cost (% of sale price, default 6%):
+
+      <label for="sellingCostPercent">Selling Cost (% of sale price):</label>
       <input type="number" id="sellingCostPercent" placeholder="6" step="0.1" />
-    </label>
-    <label>
-      Projected Annual Home Value Growth (%):
+
+      <label for="projHomeGrowth">Projected Annual Home Value Growth (%):</label>
       <input type="number" id="projHomeGrowth" placeholder="4" step="0.1" />
-    </label>
-    <label>
-      Projected Annual Inflation Rate (%):
+
+      <label for="projInflationRate">Projected Annual Inflation Rate (%):</label>
       <input type="number" id="projInflationRate" placeholder="3.5" step="0.1" />
-    </label>
-    <label>
-      State (for local wage and cost of living adjustment):
+
+      <label for="location">State (for local wage and cost of living adjustment):</label>
       <select id="location">
         <option value="us_avg">U.S. National Average</option>
-        <option value="alabama">Alabama</option>
-        <option value="alaska">Alaska</option>
-        <option value="arizona">Arizona</option>
-        <option value="arkansas">Arkansas</option>
         <option value="california">California</option>
-        <option value="colorado">Colorado</option>
-        <option value="connecticut">Connecticut</option>
-        <option value="delaware">Delaware</option>
         <option value="florida">Florida</option>
-        <option value="georgia">Georgia</option>
-        <option value="hawaii">Hawaii</option>
-        <option value="idaho">Idaho</option>
-        <option value="illinois">Illinois</option>
-        <option value="indiana">Indiana</option>
-        <option value="iowa">Iowa</option>
-        <option value="kansas">Kansas</option>
-        <option value="kentucky">Kentucky</option>
-        <option value="louisiana">Louisiana</option>
-        <option value="maine">Maine</option>
-        <option value="maryland">Maryland</option>
-        <option value="massachusetts">Massachusetts</option>
-        <option value="michigan">Michigan</option>
-        <option value="minnesota">Minnesota</option>
-        <option value="mississippi">Mississippi</option>
-        <option value="missouri">Missouri</option>
-        <option value="montana">Montana</option>
-        <option value="nebraska">Nebraska</option>
-        <option value="nevada">Nevada</option>
-        <option value="new_hampshire">New Hampshire</option>
-        <option value="new_jersey">New Jersey</option>
-        <option value="new_mexico">New Mexico</option>
         <option value="new_york">New York</option>
-        <option value="north_carolina">North Carolina</option>
-        <option value="north_dakota">North Dakota</option>
-        <option value="ohio">Ohio</option>
-        <option value="oklahoma">Oklahoma</option>
-        <option value="oregon">Oregon</option>
-        <option value="pennsylvania">Pennsylvania</option>
-        <option value="rhode_island">Rhode Island</option>
-        <option value="south_carolina">South Carolina</option>
-        <option value="south_dakota">South Dakota</option>
-        <option value="tennessee">Tennessee</option>
         <option value="texas">Texas</option>
-        <option value="utah">Utah</option>
-        <option value="vermont">Vermont</option>
-        <option value="virginia">Virginia</option>
         <option value="washington">Washington</option>
-        <option value="west_virginia">West Virginia</option>
-        <option value="wisconsin">Wisconsin</option>
-        <option value="wyoming">Wyoming</option>
+        <!-- Add more states if needed -->
       </select>
-    </label>
-    <button type="submit">Calculate</button>
-  </form>
 
-  <div id="zillowLink"></div>
-  <div id="results"></div>
+      <button type="submit">Calculate</button>
+    </form>
 
-  <h2>10-Year Future ROI Estimator</h2>
-  <canvas id="futureChart" width="600" height="300"></canvas>
+    <div id="zillowLink"></div>
+    <div id="results"></div>
 
-  <!-- ✅ Load your JS last -->
+    <h2>10-Year Future ROI Estimator</h2>
+    <canvas id="futureChart" width="600" height="300"></canvas>
+  </div>
+
   <script src="script.js"></script>
 </body>
 </html>
