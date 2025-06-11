@@ -266,7 +266,7 @@ window.futureChart = new Chart(ctx, {
           }
         }
       },
-      y1: {
+            y1: {
         type: 'linear',
         position: 'right',
         title: {
@@ -281,4 +281,5 @@ window.futureChart = new Chart(ctx, {
       }
     }
   }
-});
+}); // ← this closes Chart
+}); // ← this closes the form submit event listener
