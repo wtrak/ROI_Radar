@@ -203,8 +203,11 @@ for (let i = 1; i <= 10; i++) {
   realRois.push(Number((realRoi * 100).toFixed(2)));
 }
 
-// Clean up old chart
-if (window.futureChart) window.futureChart.destroy();
+// Clean up old chart (safe)
+if (window.futureChart && typeof window.futureChart.destroy === 'function') {
+  window.futureChart.destroy();
+}
+
 
 const ctx = document.getElementById("futureChart").getContext("2d");
 window.futureChart = new Chart(ctx, {
