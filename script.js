@@ -285,4 +285,25 @@ window.futureChart = new Chart(ctx, {
     }
   }
 }); // ← this closes Chart
+
+// === ROI Taper Indicator ===
+let roiTaperYear = null;
+for (let i = 1; i < realRois.length; i++) {
+  const previous = parseFloat(realRois[i - 1]);
+  const current = parseFloat(realRois[i]);
+  const delta = current - previous;
+
+  if (delta < 0.05) { // threshold for tapering
+    roiTaperYear = futureYears[i];
+    break;
+  }
+}
+
+if (roiTaperYear) {
+  const taperMessage = document.createElement("p");
+  taperMessage.style.fontWeight = "bold";
+  taperMessage.style.color = "#b34700";
+  taperMessage.textContent = `📉 ROI Taper Detected: Consider selling by ${roiTaperYear} to lock in gains.`;
+  document.getElementById("results").appendChild(taperMessage);
+}
 }); // ← this closes the form submit event listener
